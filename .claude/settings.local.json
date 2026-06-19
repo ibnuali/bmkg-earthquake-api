@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "mcp__fetch__fetch",
-      "Bash(go test *)",
-      "Bash(go tool *)"
-    ]
-  }
-}
