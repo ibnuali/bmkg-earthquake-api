@@ -9,8 +9,7 @@ RUN go mod download
 
 COPY . .
 
-ARG TARGETARCH
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build \
+RUN CGO_ENABLED=0 go build \
     -ldflags="-s -w" \
     -o /app/earthquake-api ./cmd/api
 
