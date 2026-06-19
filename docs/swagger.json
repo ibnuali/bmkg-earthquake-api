@@ -1,0 +1,235 @@
+{
+    "schemes": [
+        "http",
+        "https"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "API for fetching earthquake data from BMKG (Badan Meteorologi, Klimatologi, dan Geofisika Indonesia).\nData sumber: https://data.bmkg.go.id/gempabumi/\n**Atribusi**: Wajib mencantumkan BMKG sebagai sumber data pada aplikasi/sistem Anda.",
+        "title": "BMKG Earthquake API",
+        "contact": {
+            "name": "BMKG",
+            "url": "https://data.bmkg.go.id"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0.0"
+    },
+    "host": "localhost:8090",
+    "basePath": "/",
+    "paths": {
+        "/": {
+            "get": {
+                "description": "Menampilkan informasi API dan daftar endpoint yang tersedia.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "API information",
+                "responses": {
+                    "200": {
+                        "description": "Informasi API",
+                        "schema": {
+                            "$ref": "#/definitions/earthquake-api_internal_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/earthquake/latest": {
+            "get": {
+                "description": "Mengambil data gempabumi terkini dari BMKG.\nData mencakup magnitudo, kedalaman, koordinat, lokasi, dan potensi tsunami.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Earthquake"
+                ],
+                "summary": "Get latest earthquake",
+                "responses": {
+                    "200": {
+                        "description": "Data gempa terbaru",
+                        "schema": {
+                            "$ref": "#/definitions/earthquake-api_internal_response.APIResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Gagal mengambil data dari BMKG",
+                        "schema": {
+                            "$ref": "#/definitions/earthquake-api_internal_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/earthquake/list/felt": {
+            "get": {
+                "description": "Mengambil 15 gempabumi terakhir yang dirasakan (berdasarkan skala MMI) dari BMKG.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Earthquake"
+                ],
+                "summary": "Get 15 latest felt earthquakes",
+                "responses": {
+                    "200": {
+                        "description": "Daftar 15 gempa dirasakan",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/earthquake-api_internal_response.APIResponse"
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Gagal mengambil data dari BMKG",
+                        "schema": {
+                            "$ref": "#/definitions/earthquake-api_internal_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/earthquake/list/magnitude5": {
+            "get": {
+                "description": "Mengambil 15 gempabumi terakhir dengan magnitudo \u003e= 5.0 dari BMKG.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Earthquake"
+                ],
+                "summary": "Get 15 latest M5.0+ earthquakes",
+                "responses": {
+                    "200": {
+                        "description": "Daftar 15 gempa M5.0+",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/earthquake-api_internal_response.APIResponse"
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Gagal mengambil data dari BMKG",
+                        "schema": {
+                            "$ref": "#/definitions/earthquake-api_internal_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/earthquake/shakemap": {
+            "get": {
+                "description": "Redirect ke gambar shakemap (peta guncangan) dari server statis BMKG.\nGunakan parameter `code` yang diperoleh dari response endpoint gempa terbaru (field `shakemap_url`).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Earthquake"
+                ],
+                "summary": "Get shakemap image",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kode shakemap (contoh: 20260619085320.mmi.jpg)",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirect ke gambar shakemap BMKG",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Parameter code tidak valid atau tidak disertakan",
+                        "schema": {
+                            "$ref": "#/definitions/earthquake-api_internal_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Memeriksa status kesehatan API service.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "Service sehat",
+                        "schema": {
+                            "$ref": "#/definitions/earthquake-api_internal_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "earthquake-api_internal_response.APIError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "earthquake-api_internal_response.APIResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {
+                    "$ref": "#/definitions/earthquake-api_internal_response.APIError"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/earthquake-api_internal_response.Metadata"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "earthquake-api_internal_response.Metadata": {
+            "type": "object",
+            "properties": {
+                "api_version": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "description": "Endpoint data gempabumi",
+            "name": "Earthquake"
+        },
+        {
+            "description": "Endpoint sistem (health check, informasi API)",
+            "name": "System"
+        }
+    ]
+}

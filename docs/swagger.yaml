@@ -1,0 +1,161 @@
+basePath: /
+definitions:
+  earthquake-api_internal_response.APIError:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  earthquake-api_internal_response.APIResponse:
+    properties:
+      data: {}
+      error:
+        $ref: '#/definitions/earthquake-api_internal_response.APIError'
+      metadata:
+        $ref: '#/definitions/earthquake-api_internal_response.Metadata'
+      success:
+        type: boolean
+    type: object
+  earthquake-api_internal_response.Metadata:
+    properties:
+      api_version:
+        type: string
+      source:
+        type: string
+      timestamp:
+        type: string
+    type: object
+host: localhost:8090
+info:
+  contact:
+    name: BMKG
+    url: https://data.bmkg.go.id
+  description: |-
+    API for fetching earthquake data from BMKG (Badan Meteorologi, Klimatologi, dan Geofisika Indonesia).
+    Data sumber: https://data.bmkg.go.id/gempabumi/
+    **Atribusi**: Wajib mencantumkan BMKG sebagai sumber data pada aplikasi/sistem Anda.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: BMKG Earthquake API
+  version: 1.0.0
+paths:
+  /:
+    get:
+      description: Menampilkan informasi API dan daftar endpoint yang tersedia.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Informasi API
+          schema:
+            $ref: '#/definitions/earthquake-api_internal_response.APIResponse'
+      summary: API information
+      tags:
+      - System
+  /api/v1/earthquake/latest:
+    get:
+      description: |-
+        Mengambil data gempabumi terkini dari BMKG.
+        Data mencakup magnitudo, kedalaman, koordinat, lokasi, dan potensi tsunami.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Data gempa terbaru
+          schema:
+            $ref: '#/definitions/earthquake-api_internal_response.APIResponse'
+        "503":
+          description: Gagal mengambil data dari BMKG
+          schema:
+            $ref: '#/definitions/earthquake-api_internal_response.APIResponse'
+      summary: Get latest earthquake
+      tags:
+      - Earthquake
+  /api/v1/earthquake/list/felt:
+    get:
+      description: Mengambil 15 gempabumi terakhir yang dirasakan (berdasarkan skala
+        MMI) dari BMKG.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Daftar 15 gempa dirasakan
+          schema:
+            items:
+              $ref: '#/definitions/earthquake-api_internal_response.APIResponse'
+            type: array
+        "503":
+          description: Gagal mengambil data dari BMKG
+          schema:
+            $ref: '#/definitions/earthquake-api_internal_response.APIResponse'
+      summary: Get 15 latest felt earthquakes
+      tags:
+      - Earthquake
+  /api/v1/earthquake/list/magnitude5:
+    get:
+      description: Mengambil 15 gempabumi terakhir dengan magnitudo >= 5.0 dari BMKG.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Daftar 15 gempa M5.0+
+          schema:
+            items:
+              $ref: '#/definitions/earthquake-api_internal_response.APIResponse'
+            type: array
+        "503":
+          description: Gagal mengambil data dari BMKG
+          schema:
+            $ref: '#/definitions/earthquake-api_internal_response.APIResponse'
+      summary: Get 15 latest M5.0+ earthquakes
+      tags:
+      - Earthquake
+  /api/v1/earthquake/shakemap:
+    get:
+      description: |-
+        Redirect ke gambar shakemap (peta guncangan) dari server statis BMKG.
+        Gunakan parameter `code` yang diperoleh dari response endpoint gempa terbaru (field `shakemap_url`).
+      parameters:
+      - description: 'Kode shakemap (contoh: 20260619085320.mmi.jpg)'
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: Redirect ke gambar shakemap BMKG
+          schema:
+            type: string
+        "400":
+          description: Parameter code tidak valid atau tidak disertakan
+          schema:
+            $ref: '#/definitions/earthquake-api_internal_response.APIResponse'
+      summary: Get shakemap image
+      tags:
+      - Earthquake
+  /health:
+    get:
+      description: Memeriksa status kesehatan API service.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Service sehat
+          schema:
+            $ref: '#/definitions/earthquake-api_internal_response.APIResponse'
+      summary: Health check
+      tags:
+      - System
+schemes:
+- http
+- https
+swagger: "2.0"
+tags:
+- description: Endpoint data gempabumi
+  name: Earthquake
+- description: Endpoint sistem (health check, informasi API)
+  name: System
