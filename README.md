@@ -78,7 +78,7 @@ earthquake-api/
 
 ```bash
 # Clone repositori
-git clone <repo-url>
+git clone https://github.com/ibnuali/bmkg-earthquake-api
 cd earthquake-api
 
 # Salin konfigurasi
