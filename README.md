@@ -3,20 +3,20 @@
 ![Go Version](https://img.shields.io/badge/Go-1.26+-00ADD8?logo=go)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-API layanan data gempabumi Indonesia yang mengambil data real-time dari [BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)](https://data.bmkg.go.id/gempabumi/).
+A REST API service for Indonesian earthquake data, fetching real-time information from [BMKG (Meteorological, Climatological, and Geophysical Agency)](https://data.bmkg.go.id/gempabumi/).
 
-> **⚠️ Atribusi**: Wajib untuk mencantumkan BMKG sebagai sumber data dan menampilkannya pada aplikasi/sistem Anda sesuai ketentuan yang berlaku.
+> **⚠️ Attribution**: You must credit BMKG as the data source and display it in your application/system according to applicable regulations.
 
-## Fitur
+## Features
 
-- 📡 **Data Real-time** — Mengambil data gempabumi terbaru langsung dari BMKG
-- 🔄 **Tiga Jenis Data** — Gempa terbaru, M 5.0+, dan gempa dirasakan
-- 🖼️ **Shakemap** — Proxy/redirect ke peta guncangan (shakemap)
-- ⚡ **Caching** — In-memory cache untuk mengurangi permintaan ke BMKG (rate limit: 60 req/menit/IP)
+- 📡 **Real-time Data** — Fetches the latest earthquake data directly from BMKG
+- 🔄 **Three Data Types** — Latest earthquake, M 5.0+, and felt earthquakes
+- 🖼️ **Shakemap** — Proxy/redirect to shake maps (shakemap images)
+- ⚡ **Caching** — In-memory cache to reduce requests to BMKG (rate limit: 60 req/min/IP)
 - 🔒 **Production Ready** — Graceful shutdown, timeout, retry, CORS, panic recovery
-- 🐳 **Docker Support** — Dockerfile & Docker Compose siap pakai
+- 🐳 **Docker Support** — Dockerfile & Docker Compose ready to use
 
-## Arsitektur
+## Architecture
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌─────────────┐     ┌──────────────────────┐
@@ -33,7 +33,7 @@ API layanan data gempabumi Indonesia yang mengambil data real-time dari [BMKG (B
                     └────────────┘
 ```
 
-Struktur proyek mengikuti **Clean Architecture**:
+The project structure follows **Clean Architecture**:
 
 ```
 earthquake-api/
@@ -42,11 +42,11 @@ earthquake-api/
 │       └── main.go              # Entry point
 ├── internal/
 │   ├── bmkg/
-│   │   └── client.go            # HTTP client untuk BMKG API
+│   │   └── client.go            # HTTP client for BMKG API
 │   ├── cache/
 │   │   └── cache.go             # In-memory cache
 │   ├── config/
-│   │   └── config.go            # Konfigurasi dari env vars
+│   │   └── config.go            # Configuration from env vars
 │   ├── handler/
 │   │   └── earthquake.go        # HTTP handlers
 │   ├── middleware/
@@ -55,7 +55,7 @@ earthquake-api/
 │   │   ├── recovery.go          # Panic recovery
 │   │   └── requestid.go         # Request ID tracing
 │   ├── model/
-│   │   ├── earthquake.go        # Struct data gempa
+│   │   ├── earthquake.go        # Earthquake data structs
 │   │   └── errors.go            # Error definitions
 │   ├── response/
 │   │   └── response.go          # Standard JSON envelope
@@ -72,29 +72,29 @@ earthquake-api/
 
 ### Prerequisites
 
-- Go 1.22+ atau Docker
+- Go 1.22+ or Docker
 
-### Menjalankan dengan Go
+### Running with Go
 
 ```bash
-# Clone repositori
+# Clone the repository
 git clone https://github.com/ibnuali/bmkg-earthquake-api
 cd earthquake-api
 
-# Salin konfigurasi
+# Copy configuration
 cp .env.example .env
 
-# Jalankan
+# Run
 make run
 ```
 
-### Menjalankan dengan Docker
+### Running with Docker
 
 ```bash
-# Build & run dengan Docker Compose
+# Build & run with Docker Compose
 make docker-compose-up
 
-# Atau manual
+# Or manually
 make docker-build
 make docker-run
 ```
@@ -107,13 +107,13 @@ make run-hot
 
 ## API Endpoints
 
-### 1. Informasi API
+### 1. API Information
 
 ```
 GET /
 ```
 
-Menampilkan informasi API dan daftar endpoint yang tersedia.
+Displays API information and a list of available endpoints.
 
 ### 2. Health Check
 
@@ -121,7 +121,7 @@ Menampilkan informasi API dan daftar endpoint yang tersedia.
 GET /health
 ```
 
-Cek kesehatan service.
+Check service health.
 
 **Response:**
 ```json
@@ -139,13 +139,13 @@ Cek kesehatan service.
 }
 ```
 
-### 3. Gempa Terbaru
+### 3. Latest Earthquake
 
 ```
 GET /api/v1/earthquake/latest
 ```
 
-Mengambil data gempabumi terkini dari BMKG.
+Fetches the most recent earthquake data from BMKG.
 
 **Response:**
 ```json
@@ -174,21 +174,21 @@ Mengambil data gempabumi terkini dari BMKG.
 }
 ```
 
-### 4. Daftar 15 Gempa M 5.0+
+### 4. List of 15 Earthquakes M 5.0+
 
 ```
 GET /api/v1/earthquake/list/magnitude5
 ```
 
-Mengambil 15 gempabumi terakhir dengan magnitudo ≥ 5.0.
+Fetches the 15 most recent earthquakes with magnitude ≥ 5.0.
 
-### 5. Daftar 15 Gempa Dirasakan
+### 5. List of 15 Felt Earthquakes
 
 ```
 GET /api/v1/earthquake/list/felt
 ```
 
-Mengambil 15 gempabumi terakhir yang dirasakan.
+Fetches the 15 most recent felt earthquakes.
 
 ### 6. Shakemap
 
@@ -196,13 +196,13 @@ Mengambil 15 gempabumi terakhir yang dirasakan.
 GET /api/v1/earthquake/shakemap?code=20260619085320.mmi.jpg
 ```
 
-Redirect ke gambar shakemap di server statis BMKG.
+Redirects to the shakemap image on BMKG's static server.
 
-## Format Respons
+## Response Format
 
-Semua respons menggunakan format JSON envelope yang konsisten:
+All responses use a consistent JSON envelope format:
 
-### Sukses
+### Success
 
 ```json
 {
@@ -235,37 +235,37 @@ Semua respons menggunakan format JSON envelope yang konsisten:
 }
 ```
 
-### Kode Error
+### Error Codes
 
-| HTTP Status | Code | Deskripsi |
-|-------------|------|-----------|
-| 400 | `INVALID_REQUEST` | Parameter tidak valid |
-| 404 | `NOT_FOUND` | Data tidak ditemukan |
-| 429 | `UPSTREAM_RATE_LIMITED` | Rate limit BMKG tercapai |
-| 503 | `UPSTREAM_ERROR` | Gagal mengambil data dari BMKG |
+| HTTP Status | Code | Description |
+|-------------|------|-------------|
+| 400 | `INVALID_REQUEST` | Invalid parameters |
+| 404 | `NOT_FOUND` | Data not found |
+| 429 | `UPSTREAM_RATE_LIMITED` | BMKG rate limit reached |
+| 503 | `UPSTREAM_ERROR` | Failed to fetch data from BMKG |
 
-## Konfigurasi Lingkungan
+## Environment Configuration
 
-Semua konfigurasi melalui environment variables (lihat [.env.example](.env.example)):
+All configuration is done through environment variables (see [.env.example](.env.example)):
 
-| Variable | Default | Deskripsi |
-|----------|---------|-----------|
-| `SERVER_HOST` | `0.0.0.0` | Host server |
-| `SERVER_PORT` | `8080` | Port server |
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SERVER_HOST` | `0.0.0.0` | Server host |
+| `SERVER_PORT` | `8080` | Server port |
 | `SERVER_READ_TIMEOUT` | `10s` | Read timeout |
 | `SERVER_WRITE_TIMEOUT` | `30s` | Write timeout |
 | `SERVER_IDLE_TIMEOUT` | `60s` | Idle timeout |
-| `BMKG_BASE_URL` | `https://data.bmkg.go.id` | Base URL BMKG |
+| `BMKG_BASE_URL` | `https://data.bmkg.go.id` | BMKG base URL |
 | `BMKG_HTTP_TIMEOUT` | `10s` | HTTP client timeout |
-| `BMKG_MAX_RETRIES` | `2` | Jumlah retry ke BMKG |
-| `BMKG_RETRY_WAIT` | `500ms` | Interval antar retry |
-| `CACHE_ENABLED` | `true` | Aktifkan caching |
+| `BMKG_MAX_RETRIES` | `2` | Number of retries to BMKG |
+| `BMKG_RETRY_WAIT` | `500ms` | Interval between retries |
+| `CACHE_ENABLED` | `true` | Enable caching |
 | `CACHE_TTL` | `30s` | Cache TTL |
-| `CORS_ALLOWED_ORIGINS` | `*` | Origin yang diizinkan |
+| `CORS_ALLOWED_ORIGINS` | `*` | Allowed origins |
 
 ## Rate Limiting
 
-BMKG menerapkan batas akses **60 permintaan per menit per IP**. API ini menggunakan in-memory cache (default 30 detik) untuk mengurangi jumlah permintaan langsung ke BMKG.
+BMKG enforces a limit of **60 requests per minute per IP**. This API uses in-memory caching (default 30 seconds) to reduce the number of direct requests to BMKG.
 
 ## Development
 
@@ -287,22 +287,22 @@ make lint
 make build
 ```
 
-## Sumber Data
+## Data Source
 
-Data diperoleh dari portal resmi BMKG:
+Data is obtained from the official BMKG portal:
 - https://data.bmkg.go.id/gempabumi/
 - https://github.com/infoBMKG/data-gempabumi
 
-Endpoint yang digunakan:
-- `autogempa.json` — Gempa terbaru
-- `gempaterkini.json` — 15 gempa M 5.0+ terbaru
-- `gempadirasakan.json` — 15 gempa dirasakan terbaru
-- `static.bmkg.go.id/[kode].jpg` — Gambar shakemap
+Endpoints used:
+- `autogempa.json` — Latest earthquake
+- `gempaterkini.json` — 15 most recent M 5.0+ earthquakes
+- `gempadirasakan.json` — 15 most recent felt earthquakes
+- `static.bmkg.go.id/[code].jpg` — Shakemap images
 
-## Lisensi
+## License
 
 MIT License
 
-## Atribusi
+## Attribution
 
-Data gempabumi berasal dari **BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)**. Wajib mencantumkan BMKG sebagai sumber data sesuai dengan ketentuan yang berlaku.
+Earthquake data is sourced from **BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)**. You must credit BMKG as the data source in accordance with applicable regulations.
